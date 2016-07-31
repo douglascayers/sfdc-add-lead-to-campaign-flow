@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Lead.CID__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>Add_Lead_to_Campaign-1</members>
+        <members>Add_Lead_to_Campaign_Flow-1</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>Add_Lead_to_Campaign</members>
+        <members>Add_Lead_to_Campaign_Flow</members>
+        <name>FlowDefinition</name>
+    </types>
+    <version>36.0</version>
+</Package>

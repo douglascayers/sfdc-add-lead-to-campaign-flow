@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <decisions>
+        <description>Checks if the lead is already a member of the campaign.</description>
+        <name>Already_Member</name>
+        <label>Already Member?</label>
+        <locationX>295</locationX>
+        <locationY>38</locationY>
+        <defaultConnectorLabel>[Default Outcome]</defaultConnectorLabel>
+        <rules>
+            <name>Already_Member_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varCampaignMemberID</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Yes</label>
+        </rules>
+        <rules>
+            <name>Already_Member_No</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varCampaignMemberID</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Lookup_Campaign_Member_Status</targetReference>
+            </connector>
+            <label>No</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Do we need to lookup the default campaign member response status for this campaign or was one already specified as a variable?</description>
+        <name>Lookup_Campaign_Member_Status</name>
+        <label>Lookup Campaign Member Status?</label>
+        <locationX>293</locationX>
+        <locationY>167</locationY>
+        <defaultConnectorLabel>[Default Outcome]</defaultConnectorLabel>
+        <rules>
+            <name>Lookup_Campaign_Member_Status_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varCampaignMemberStatus</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Campaign_Member_Status</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+        <rules>
+            <name>Lookup_Campaign_Member_Status_No</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varCampaignMemberStatus</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Campaign_Member</targetReference>
+            </connector>
+            <label>No</label>
+        </rules>
+    </decisions>
+    <description>Designed to be invoked by process builder passing in LeadID, CampaignID, and Status (optional) to create a CampaignMember record. If the lead is already a member then does nothing. If no Status is specified then flow looks up the default response status for that campaign.</description>
+    <interviewLabel>Add Lead to Campaign Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Add Lead to Campaign Flow</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Campaign_Member</name>
+        <label>Create Campaign Member</label>
+        <locationX>293</locationX>
+        <locationY>304</locationY>
+        <assignRecordIdToReference>varCampaignMemberID</assignRecordIdToReference>
+        <inputAssignments>
+            <field>CampaignId</field>
+            <value>
+                <elementReference>varCampaignID</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LeadId</field>
+            <value>
+                <elementReference>varLeadID</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <elementReference>varCampaignMemberStatus</elementReference>
+            </value>
+        </inputAssignments>
+        <object>CampaignMember</object>
+    </recordCreates>
+    <recordLookups>
+        <description>See if the lead is already a member of the campaign.</description>
+        <name>Get_Campaign_Member</name>
+        <label>Get Campaign Member</label>
+        <locationX>77</locationX>
+        <locationY>36</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Already_Member</targetReference>
+        </connector>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varCampaignID</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>LeadId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varLeadID</elementReference>
+            </value>
+        </filters>
+        <object>CampaignMember</object>
+        <outputAssignments>
+            <assignToReference>varCampaignMemberID</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <description>Lookup the default campaign member response status.</description>
+        <name>Get_Campaign_Member_Status</name>
+        <label>Get Campaign Member Status</label>
+        <locationX>523</locationX>
+        <locationY>165</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Create_Campaign_Member</targetReference>
+        </connector>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varCampaignID</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>HasResponded</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsDeleted</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>CampaignMemberStatus</object>
+        <outputAssignments>
+            <assignToReference>varCampaignMemberStatus</assignToReference>
+            <field>Label</field>
+        </outputAssignments>
+        <sortField>SortOrder</sortField>
+        <sortOrder>Asc</sortOrder>
+    </recordLookups>
+    <startElementReference>Get_Campaign_Member</startElementReference>
+    <variables>
+        <description>ID of the campaign record to add the lead to.</description>
+        <name>varCampaignID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>ID of the campaign member record for this lead and campaign.</description>
+        <name>varCampaignMemberID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>The status to set if create new campaign member record. If blank then flow will attempt to look up the default response status for the given campaign.</description>
+        <name>varCampaignMemberStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>ID of the Lead record to add to campaign.</description>
+        <name>varLeadID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

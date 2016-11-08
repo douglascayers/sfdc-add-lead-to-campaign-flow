@@ -2,7 +2,7 @@
 
 A simple way to add a lead to campaigns based on a custom campaign id text or lookup field on the lead object.
 
-This project is inspired by [Derek Hays](https://www.linkedin.com/in/derekhays) who had some follow up questions when implementing my other solution to [automate adding leads or contacts to campaigns via report subscriptions](https://douglascayers.wordpress.com/2015/07/06/salesforce-automate-adding-contacts-to-campaign-via-report-subscription/).
+This project is inspired by [Derek Hays](https://www.linkedin.com/in/derekhays) who had some follow up questions when implementing my other solution to [automate adding leads or contacts to campaigns via report subscriptions](https://douglascayers.wordpress.com/2015/07/06/salesforce-automate-adding-contacts-to-campaign-via-report-subscription/). This is also one of the solutions highlighted on my blog post [8 Ways to Add Leads to Campaigns](https://douglascayers.com/2016/07/31/8-ways-to-add-leads-to-campaigns/).
 
 <a href="https://githubsfdeploy.herokuapp.com">
   <img alt="Deploy to Salesforce"
@@ -26,6 +26,7 @@ A creative non-code solution is to use Process Builder and add a custom text or 
 Process Builder is used to monitor the lead object for create and edit events, specifically for when the custom "Campaign ID" field value changes. Process Builder then runs a Flow that can identify if the lead already exists as a member of the desired campaign, and if not, then creates the CampaignMember record, otherwise does nothing (or do something else you care about like log an activity).
 
 For example, consider these events taken by the same website visitor:
+
 1. Visitor downloads white paper (third-party app creates new lead and sets campaign id to `7011a000000xxx1`)
 2. Process Builder detects lead create event and launches Flow to assign lead as campaign member
 3. Visitor registers for webinar (third-party app updates same lead and changes campaign id to `7011a000000xxx2`)
